@@ -31,6 +31,7 @@ class VideoReader:
             seed: random seed for jittering; if you set this to a fixed value,
                 you probably want to set it only on the first video 
         """
+        #print("num_frames",num_frames)
         assert num_frames > 0
 
         capture = cv2.VideoCapture(path)

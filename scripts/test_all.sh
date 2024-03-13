@@ -6,11 +6,12 @@ echo "-------------------------------------------------"
 echo "| Test Xception on FFc23                        |"
 echo "-------------------------------------------------"
 # put your DFDC source directory path for the extracted faces and Dataframe and uncomment the following lines
-# DFDC_FACES_DIR=/your/dfdc/faces/directory
-# DFDC_FACES_DF=/your/dfdc/faces/dataframe/path
+#DFDC_FACES_DIR=/home/adaptai/repositories/fakedetector/output/
+#DFDC_FACES_DF=/home/adaptai/repositories/fakedetector/output/df/
 # put your FF++ source directory path for the extracted faces and Dataframe and uncomment the following lines
-# FFPP_FACES_DIR=/your/dfdc/faces/directory
-# FFPP_FACES_DF=/your/dfdc/faces/dataframe/path
+#FFPP_FACES_DIR=/home/adaptai/repositories/fakedetector/output/
+#FFPP_FACES_DF=/home/adaptai/repositories/fakedetector/output/df
+
 python test_model.py \
 --model_path weights/binclass/net-Xception_traindb-ff-c23-720-140-140_face-scale_size-224_seed-41/bestval.pth \
 --testsets ff-c23-720-140-140 dfdc-35-5-10 \
@@ -41,7 +42,7 @@ echo "| Test EfficientNetB4 on FFc23                  |"
 echo "-------------------------------------------------"
 python test_model.py \
 --model_path weights/binclass/net-EfficientNetB4_traindb-ff-c23-720-140-140_face-scale_size-224_seed-41/bestval.pth \
---testsets ff-c23-720-140-140 dfdc-35-5-10 \
+--testsets ff-c23-720-140-140 \
 --dfdc_faces_df_path $DFDC_FACES_DF \
 --dfdc_faces_dir $DFDC_FACES_DIR \
 --ffpp_faces_df_path $FFPP_FACES_DF \

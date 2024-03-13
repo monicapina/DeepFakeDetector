@@ -71,7 +71,7 @@ def main():
     deepcheck: bool = args.deepcheck
     checkpoint_folder: Path = args.checkpoint
     index_enable: bool = args.noindex
-
+    print(source_dir)
     ## Parameters
     face_size = 512
 

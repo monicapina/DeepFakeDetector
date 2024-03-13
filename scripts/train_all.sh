@@ -6,8 +6,8 @@ echo "-------------------------------------------------"
 echo "| Train Xception on FFc23                       |"
 echo "-------------------------------------------------"
 # put your FF++ source directory path for the extracted faces and Dataframe and uncomment the following line
-# FFPP_FACES_DIR=/your/dfdc/faces/directory
-# FFPP_FACES_DF=/your/dfdc/faces/dataframe/path
+FFPP_FACES_DIR=/home/adaptai/dataset/FaceForensics++/
+FFPP_FACES_DF=/home/adaptai/dataset/FaceForensics++/videodataset
 python train_binclass.py \
 --net Xception \
 --traindb ff-c23-720-140-140 \
@@ -56,8 +56,8 @@ echo "-------------------------------------------------"
 echo "| Train EfficientNetB4 on FFc23                  |"
 echo "-------------------------------------------------"
 # put your FF++ source directory path for the extracted faces and Dataframe and uncomment the following line
-# FFPP_FACES_DIR=/your/dfdc/faces/directory
-# FFPP_FACES_DF=/your/dfdc/faces/dataframe/path
+FFPP_FACES_DIR=/home/adaptai/repositories/fakedetector/output/
+FFPP_FACES_DF=/home/adaptai/repositories/fakedetector/output/df
 python train_binclass.py \
 --net EfficientNetB4 \
 --traindb ff-c23-720-140-140 \
@@ -106,8 +106,8 @@ echo "-------------------------------------------------"
 echo "| Train EfficientNetB4 on FFc23 (triplet)        |"
 echo "-------------------------------------------------"
 # put your FF++ source directory path for the extracted faces and Dataframe and uncomment the following line
-# FFPP_FACES_DIR=/your/dfdc/faces/directory
-# FFPP_FACES_DF=/your/dfdc/faces/dataframe/path
+#FFPP_FACES_DIR=/home/adaptai/dataset/FaceForensics++/
+#FFPP_FACES_DF=home/adaptai/repositories/fakedetector/data/ffpp_videos.pkl
 python train_triplet.py \
 --net EfficientNetB4 \
 --traindb ff-c23-720-140-140 \

@@ -221,6 +221,8 @@ class SiameseTuning(FeatureExtractor):
         else:
             x = self.features(x)
         x = self.classifier(x)
+        
+        #print("x",x)
         return x
 
     def get_trainable_parameters(self):

@@ -13,6 +13,10 @@ import matplotlib.pyplot as plt
 from flask_cors import CORS, cross_origin
 from flask import jsonify
 from twitterdl import TwitterDownloader
+import os
+import random
+app = Flask(__name__)
+
 
 # """
 # Choose an architecture between
@@ -68,7 +72,7 @@ def predictImage(image):
             net(faces_t.to(device))).cpu().numpy().flatten()
 
     d = {'result': str(faces_pred[0])}
-
+    #print(round(faces_pred[0]))
     return jsonify(d)
 
 
@@ -80,22 +84,22 @@ Choose an architecture between
 - EfficientNetAutoAttB4ST
 - Xception
 """
-net_model = 'EfficientNetAutoAttB4'
+net_model = 'EfficientNetAutoAttB4ST'
 
 """
 Choose a training dataset between
 - DFDC
 - FFPP
 """
-train_db = 'DFDC'
+train_db = 'FFPP'
 
 device = torch.device(
     'cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 face_policy = 'scale'
 face_size = 224
-frames_per_video = 32
+frames_per_video = model_url = weights.weight_url['{:s}_{:s}'.format(net_model, train_db)]
 
-model_url = weights.weight_url['{:s}_{:s}'.format(net_model, train_db)]
+
 net = getattr(fornet, net_model)().eval().to(device)
 net.load_state_dict(load_url(model_url, map_location=device, check_hash=True))
 
@@ -106,104 +110,84 @@ videoreader = VideoReader(verbose=False)
 transf = utils.get_transformer(
     face_policy, face_size, net.get_normalizer(), train=False)
 
-
+print('Model loaded')
 def video_read_fn(x): return videoreader.read_frames(
-    x, num_frames=frames_per_video)
+    x, num_frames=32)
 
 
 face_extractor = FaceExtractor(video_read_fn=video_read_fn, facedet=facedet)
 
 
 def predictVideo(video):
-    vid_real_faces = face_extractor.process_video(
-        video)
-
+    vid_real_faces = face_extractor.process_video(video)
+    #print(vid_real_faces)
     im_real_face = vid_real_faces[0]['faces'][0]
-
+    #print(im_real_face)
     faces_real_t = torch.stack([transf(image=frame['faces'][0])[
                                'image'] for frame in vid_real_faces if len(frame['faces'])])
-
+    #print(faces_real_t.shape)
     with torch.no_grad():
-        faces_real_pred = net(faces_real_t.to(device)).cpu().numpy().flatten()
-
+        faces_real_pred = torch.sigmoid(net(faces_real_t.to(device))).cpu().numpy().flatten()
+        #print(faces_real_pred)
+        
     d = {'result': str(faces_real_pred.mean())}
-    print(d)
-    return jsonify(d)
+    
+    return d['result']
+def classify_binary(predictions, threshold=0.5):
+    """
+    Classify float predictions for binary classification.
+
+    Parameters:
+    - predictions: list of float predictions.
+    - threshold: float, threshold to decide between class 0 and class 1.
+
+    Returns:
+    - A list of 0s and 1s representing the predicted class.
+    """
+    return [1 if pred >= threshold else 0 for pred in predictions]
 
 
-app = Flask(__name__)
-CORS(app)
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['CORS_HEADERS'] = 'Content-Type'
 
+if __name__ == "__main__":
+    #print('Starting server')
+   
+    #True=0 False=1
+    
+    #predictVideo("/home/adaptai/dataset/FaceForensics++/original_sequences/youtube/c23/videos/019.mp4")
+    #predictVideo("/home/adaptai/dataset/Fakevaceleb/FakeAVCeleb_v1.2/FakeVideo-FakeAudio/Caucasian (American)/women/id03781/00113_id00431_wavtolip.mp4")
+    #predictVideo("//home/adaptai/dataset/Fakevaceleb/FakeAVCeleb_v1.2/FakeVideo-RealAudio/African/men/id00076/00109_3.mp4") #Fake/true
+    #predictVideo("/home/adaptai/dataset/Fakevaceleb/FakeAVCeleb_v1.2/FakeVideo-RealAudio/African/men/id00076/00109_11.mp4") #fAKE/fake
+    #predictVideo("/home/adaptai/dataset/Fakevaceleb/FakeAVCeleb_v1.2/FakeVideo-RealAudio/African/men/id00076/00109_id04727_AAnyugIAXao.mp4") #Fake/true
+    #predictVideo("/media/adaptai/T7 Shield/MONICA/dataset/FaceForensics/FaceForensics_compressed/test/altered/7sSPBQvxImQ_0_z3NNFRvZgNs_2.avi") #True/true0
+    #predictVideo("/media/adaptai/T7 Shield/MONICA/dataset/FaceForensics/FaceForensics_compressed/test/original/7sSPBQvxImQ_0_z3NNFRvZgNs_2.avi") #True/True
+    
+    #predictVideo("/media/adaptai/T7 Shield/MONICA/dataset/FaceForensics/FaceForensics_compressed/test/altered/wnx2fsN9WP0_1_wbLsNxqHyeA_1.avi") #False/true0
+    
+    
+    #predictImage("output/i/GHJMM8JWsAAyoP9.jpeg")
+    
+    #folder_deepfake = '/media/adaptai/T7 Shield/MONICA/dataset/FaceForensics/FaceForensics_compressed/test/altered/'
+    
+    folder_deepfake="/media/adaptai/T7 Shield/MONICA/dataset/Fakevaceleb/FakeAVCeleb_v1.2/FakeVideo-FakeAudio/"
+    folder_original= '/media/adaptai/T7 Shield/MONICA/dataset/FaceForensics/FaceForensics_compressed/test/original/'
+            
+    success=0
+    iteration=0
+    total=0
+    for raiz, dirs, archivos in os.walk(folder_deepfake):
+        for nombre_archivo in archivos:
+            ruta_completa = os.path.join(raiz, nombre_archivo)
+            #print(ruta_completa)
+            result=predictVideo(ruta_completa)
+            
+            classified_predictions = classify_binary([float(result)])
+            #print(classified_predictions[0])
+            if classified_predictions[0]==1:
+                print("### iteration",iteration,": Deepfake")
+                success+=1
+            else: 
+                print("### iteration",iteration,": Real")
+            iteration+=1
 
-@app.route('/link', methods=['POST', 'GET'])
-def link():
-    if request.method == 'POST':
-        link = request.get_json()['link']
-        tw = TwitterDownloader(link)
-        fname = tw.download()
-        # f = request.files['File']
-        # # f.save(secure_filename(f.filename))
-        # fname = os.path.join(
-        #     app.config['UPLOAD_FOLDER'], secure_filename(f.filename))
-        # f.save(fname)
-        return predictVideo(fname)
-        # return jsonify({"status": fname})
+    print("Success: ",success/iteration*100)
 
-
-@app.route('/uploadI', methods=['POST', 'GET'])
-def uploadI():
-    if request.method == 'POST':
-        print(request.files)
-        f = request.files['File']
-        # f.save(secure_filename(f.filename))
-        fname = os.path.join(
-            app.config['UPLOAD_FOLDER'], secure_filename(f.filename))
-        f.save(fname)
-        return predictImage(fname)
-
-
-@app.route('/uploadV', methods=['POST', 'GET'])
-def uploadV():
-    if request.method == 'POST':
-        print(request.files)
-        f = request.files['File']
-        # f.save(secure_filename(f.filename))
-        fname = os.path.join(
-            app.config['UPLOAD_FOLDER'], secure_filename(f.filename))
-        f.save(fname)
-        return predictVideo(fname)
-
-
-@app.route('/upload', methods=['POST', 'GET'])
-@cross_origin()
-def upload():
-    if request.method == 'POST':
-        print(request.files)
-        f = request.files['File']
-        # f.save(secure_filename(f.filename))
-        fname = os.path.join(
-            app.config['UPLOAD_FOLDER'], secure_filename(f.filename))
-        # f.save(fname)
-        return 'ok'
-
-    if request.method == "GET":
-        d = {'name': 'ramu'}
-        return jsonify(d)
-
-
-@app.route("/", methods=['GET'])
-def hello():
-    return 'The API is UP'
-
-
-# if __name__ == "__main__":
-#     app.run(host='0.0.0.0')
-
-# Tw = TwitterDownloader("https://twitter.com/i/status/1388581577714720772")
-# print(Tw.download())
-
-
-app.run(host='localhost', port=3000, debug=True)

@@ -154,7 +154,9 @@ def main():
     # datasets and dataloaders (from train_binclass.py)
     print('Loading data...')
     # Check if paths for DFDC and FF++ extracted faces and DataFrames are provided
+    
     for dataset in test_sets:
+        print(dataset)
         if dataset.split('-')[0] == 'dfdc' and (dfdc_df_path is None or dfdc_faces_dir is None):
             raise RuntimeError('Specify DataFrame and directory for DFDC faces for testing!')
         elif dataset.split('-')[0] == 'ff' and (ffpp_df_path is None or ffpp_faces_dir is None):
@@ -167,13 +169,13 @@ def main():
     val_dfs = [splits['val'][db][0] for db in splits['val']]
     test_dfs = [splits['test'][db][0] for db in splits['test']]
     test_roots = [splits['test'][db][1] for db in splits['test']]
-
+    
     # Output paths
     out_folder = results_dir.joinpath(model_name)
     out_folder.mkdir(mode=0o775, parents=True, exist_ok=True)
 
     # Samples selection
-    if max_num_videos_per_label > 0:
+    if max_num_videos_per_label is not None and max_num_videos_per_label > 0:
         dfs_out_train = [select_videos(df, max_num_videos_per_label) for df in train_dfs]
         dfs_out_val = [select_videos(df, max_num_videos_per_label) for df in val_dfs]
         dfs_out_test = [select_videos(df, max_num_videos_per_label) for df in test_dfs]

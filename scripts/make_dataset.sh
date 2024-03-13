@@ -5,7 +5,7 @@ echo "-------------------------------------------------"
 echo "| Index DFDC dataset                            |"
 echo "-------------------------------------------------"
 # put your dfdc source directory path and uncomment the following line
-# DFDC_SRC=/your/dfdc/source/directory
+# DFDC_SRC=/home/adaptai/dataset/FaceForensics++/
 python index_dfdc.py --source $DFDC_SRC
 
 echo ""
@@ -13,7 +13,7 @@ echo "-------------------------------------------------"
 echo "| Index FF dataset                              |"
 echo "-------------------------------------------------"
 # put your ffpp source directory path and uncomment the following line
-# FFPP_SRC=/your/ffpp/source/directory
+FFPP_SRC=/home/adaptai/dataset/FaceForensics++/
 python index_ffpp.py --source $FFPP_SRC
 
 
@@ -23,8 +23,7 @@ echo "| Extract faces from DFDC                        |"
 echo "-------------------------------------------------"
 # put your source and destination directories and uncomment the following lines
 # DFDC_SRC=/your/dfdc/source/folder
-# VIDEODF_SRC=/previously/computed/index/path
-# FACES_DST=/faces/output/directory
+# VIDEODF_SRC=/previously/computed/index/path FACES_DST=/faces/output/directory
 # FACESDF_DST=/faces/df/output/directory
 # CHECKPOINT_DST=/tmp/per/video/outputs
 python extract_faces.py \
@@ -39,11 +38,11 @@ echo "-------------------------------------------------"
 echo "| Extract faces from FF                         |"
 echo "-------------------------------------------------"
 # put your source and destination directories and uncomment the following lines
-# FFPP_SRC=/your/dfdc/source/folder
-# VIDEODF_SRC=/previously/computed/index/path
-# FACES_DST=/faces/output/directory
-# FACESDF_DST=/faces/df/output/directory
-# CHECKPOINT_DST=/tmp/per/video/outputs
+FFPP_SRC=/home/adaptai/dataset/FaceForensics++/
+VIDEODF_SRC=/home/adaptai/dataset/FaceForensics++/videodataset
+FACES_DST=/home/adaptai/repositories/fakedetector/output/
+FACESDF_DST=/home/adaptai/repositories/fakedetector/output/df/
+CHECKPOINT_DST=/home/adaptai/repositories/fakedetector/output/checkpoint/
 python extract_faces.py \
 --source $FFPP_SRC \
 --videodf $VIDEODF_SRC \
